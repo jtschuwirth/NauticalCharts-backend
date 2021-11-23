@@ -1,1 +1,1 @@
-# NauticalCahrts-backend
+# NauticalCharts-backend
