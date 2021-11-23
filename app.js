@@ -56,7 +56,7 @@ class Queue {
             //por ahora los matcheara en orden de entrada y en partidas individuales
             var player1 = this.users[0];
             var players = [player1];
-            io.to(room).emit("statusQueue", players);
+            io.to(room).emit("statusQueue", {players: players});
             
             //quitamos al jugador de la Queue
             var index_p1 = this.users.indexOf(player1);
