@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>document</title>
+
+    <link href="build/site.css" rel="stylesheet">
+    <script src="build/bundle.js"></script>
+    <script >
+        function onClickInstall() {
+            window.open("https://metamask.io/")
+        }
+
+        function buttonclick(menu) {    
+            var menuList = document.getElementById(menu);
+            document.getElementById("menu1").className = "menuOff"
+            document.getElementById("menu2").className = "menuOff"
+            document.getElementById("menu3").className = "menuOff"
+            document.getElementById("menu4").className = "menuOff"
+            document.getElementById("menu5").className = "menuOff"
+            document.getElementById("menu6").className = "menuOff"
+            if (menuList.className == "menuOff") {        
+                menuList.className = "menuOn";    
+            } else {        
+                menuList.className = "menuOff";    
+            } 
+        }
+    </script>
+</head>
+
+<body>
+
+    <div id="main">
+        <h1>Nautical Charts</h1>
+        <p>Version 0.0.1</p>
+        <div id="metamask">
+            <button type="button" id = "connectButton" onclick="onClickInstall();">Install Metamask</button>
+        </div>
+        <br>
+        <div id ="metamask">
+            <p id="network"></p>
+        </div>
+
+        <div class="navbar">
+            <button class = "navbtn"id="btnMenu" onclick="buttonclick('menu1');">Main page</button> 
+            <button class = "navbtn"id="btnMenu" onclick="buttonclick('menu2');">pestaña 2</button> 
+            <button class = "navbtn"id="btnMenu" onclick="buttonclick('menu3');">pestaña 3</button> 
+            <button class = "navbtn"id="btnMenu" onclick="buttonclick('menu4');">pestaña 4</button>
+            <button class = "navbtn"id="btnMenu" onclick="buttonclick('menu5');">pestaña 5</button>
+            <button class = "navbtn"id="btnMenu" onclick="buttonclick('menu6');">pestaña 6</button> 
+            
+            <ul id="menu1" class="menuOn"> 
+                <h2> Game</h2>
+                <p id="playButton"></p>
+                <p id="game"></p>
+                <p id="quitButton"></p>
+            </ul>
+
+            <ul id="menu2" class="menuOff"> 
+                <h2>pestaña 2</h2> 
+
+            </ul>
+            
+            <ul id="menu3" class="menuOff">
+                <h2>pestaña 3</h2> 
+
+            </ul> 
+
+            <ul id="menu4" class="menuOff">
+                <h2>pestaña 4</h2>  
+
+            </ul>
+            <ul id="menu5" class="menuOff">
+                <h2>pestaña 5</h2> 
+
+            </ul>
+            <ul id="menu6" class="menuOff">
+                <h2>pestaña 6</h2> 
+
+            </ul>
+        </div>
+
+    </div>
+
+</body>
+</html>
