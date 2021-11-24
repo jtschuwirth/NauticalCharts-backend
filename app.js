@@ -84,7 +84,7 @@ class Queue {
         socket.on("endTurn", (data) => {
             console.log(`endTurn ${id}: ${data.userAddress}`);
             io.to(id).emit("endTurn", data);
-            if (!endedTurn.includes(data.userAddress)) {
+            if (endedTurn.includes(data.userAddress)==false) {
                 endedTurn.push(data.userAddress)
             }
             if (endedTurn.length == players.length) {
