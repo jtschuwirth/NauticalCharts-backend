@@ -87,6 +87,8 @@ class Queue {
             if (endedTurn.includes(data.userAddress)==false) {
                 endedTurn.push(data.userAddress)
             }
+            console.log(endedTurn)
+            console.log(players)
             if (endedTurn.length == players.length) {
                 console.log("New Round");
                 let dices = this.rollDices();
