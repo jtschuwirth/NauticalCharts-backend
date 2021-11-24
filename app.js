@@ -53,7 +53,9 @@ class Queue {
             console.log("Existen jugadores suficientes para una partida");
 
             //por ahora los matcheara en orden de entrada y en partidas individuales
-            var players = [this.users[0]];
+            var players = [];
+            for (let i=0; i<this.users.length; i++) 
+                players.push(this.users[i]);
             io.to(room).emit("statusQueue", {players: players});
             
             //quitamos al jugador de la Queue
