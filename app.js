@@ -42,9 +42,8 @@ class Queue {
             });
 
             socket.on("foundGame", (data) => {
-                const id = "idx"+data.players[0];
-                console.log(id);
-                this.partida(socket, id, data.players[0]);
+                console.log(`${data.player} found game`);
+                this.partida(socket, data.id, data.players);
             });
         });
     }
@@ -54,24 +53,33 @@ class Queue {
             console.log("Existen jugadores suficientes para una partida");
 
             //por ahora los matcheara en orden de entrada y en partidas individuales
-            var player1 = this.users[0];
-            var players = [player1];
+            var players = [this.users[0]];
             io.to(room).emit("statusQueue", {players: players});
             
             //quitamos al jugador de la Queue
-            var index_p1 = this.users.indexOf(player1);
-            this.users.splice(index_p1,1);
-            console.log(this.users);
+            for (let i=0; i<players; i++) {
+                var index = this.users.indexOf(players[i]);
+                this.users.splice(index,1);
+                console.log(this.users);
+            }
         }
     }
 
-    partida(socket, id, player) {
+    partida(socket, id, players) {
         socket.join(id);
+        console.log(`partida iniciada ${id}`)
         io.to(id).emit("partida", `Partida iniciada id: ${id}`);
 
+        let endedTurn = [];
         socket.on("endTurn", (data) => {
-            console.log(`endTurn ${id}: ${data.playerId}`);
+            console.log(`endTurn ${id}: ${data.userAddress}`);
             io.to(id).emit("endTurn", data);
+            if (!endedTurn.includes(data.userAddress)) {
+                endedTurn.push(data.userAddress)
+            }
+            if (endedTurn.length == players.length) {
+                io.to(id).emit("endTurn", "New Round");
+            }
         });
 
     }
