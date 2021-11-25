@@ -74,7 +74,7 @@ class Queue {
         socket.join(id);
         console.log(`partida iniciada ${id}`)
         if (this.games.length == id-1) {
-            this.games.push({id: id, turn: []})
+            this.games.push({id: id, turn: [], currentTurn: 0})
         }
         io.to(id).emit("partida", `Partida iniciada id: ${id}`);
         let dices = this.rollDices();
@@ -91,11 +91,16 @@ class Queue {
             if (this.games[id-1].turn.includes(data.userAddress)==false) {
                 this.games[id-1].turn.push(data.userAddress)
             }
-            if (this.games[id-1].turn.length == players.length) {
+            if (currentTurn == 5) {
+                console.log("End Game")
+                io.to(id).emit("endGame", "winner");
+
+            } else if (this.games[id-1].turn.length == players.length) {
                 console.log("New Round");
                 let dices = this.rollDices();
                 io.to(id).emit("newRound", {dices: dices});
                 this.games[id-1].turn = []
+                this.games[id-1].currentTurn++;
             }
         });
     }
