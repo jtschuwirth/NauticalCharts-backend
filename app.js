@@ -19,7 +19,7 @@ class Queue {
         this.games = [];
 
         io.on("connection", socket => {
-            console.log('client connected');
+            console.log(`client connected queue size ${size}`);
 
             // listen for incoming data msg on this newly connected socket
             socket.on("enter"+size.toString(), (data) => {
@@ -190,10 +190,10 @@ class Queue {
 }
 
 function main_queues() {
-    const cola1 = new Queue("waitingRoom", 1);
-    const cola2 = new Queue("waitingRoom", 2);
-    const cola3 = new Queue("waitingRoom", 3);
-    const cola4 = new Queue("waitingRoom", 4);
+    const cola1 = new Queue("waitingRoom1", 1);
+    const cola2 = new Queue("waitingRoom2", 2);
+    const cola3 = new Queue("waitingRoom3", 3);
+    const cola4 = new Queue("waitingRoom4", 4);
 }
 
 main_queues();
