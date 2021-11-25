@@ -91,7 +91,7 @@ class Queue {
             if (this.games[id-1].turn.includes(data.userAddress)==false) {
                 this.games[id-1].turn.push(data.userAddress)
             }
-            if (currentTurn == 5) {
+            if (this.games[id-1].currentTurn == 5) {
                 console.log("End Game")
                 io.to(id).emit("endGame", "winner");
 
