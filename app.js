@@ -93,12 +93,12 @@ class Queue {
             }
             if (this.games[id-1].currentTurn == 5) {
                 console.log("End Game")
-                io.to(id).emit("endGame", {player: player, winner: "Winner"});
+                io.to(id).emit("endGame", {winner: "Winner"});
 
             } else if (this.games[id-1].turn.length == players.length) {
                 console.log("New Round");
                 let dices = this.rollDices();
-                io.to(id).emit("newRound", {player: player, dices: dices});
+                io.to(id).emit("newRound", {dices: dices, currentTurn: currentTurn});
                 this.games[id-1].turn = []
                 this.games[id-1].currentTurn++;
             }
