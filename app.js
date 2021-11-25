@@ -95,11 +95,13 @@ class Queue {
             if (this.games[id-1].turn.includes(data.userAddress)==false) {
                 this.games[id-1].turn.push(data.userAddress)
             }
-            if (this.games[id-1].currentTurn == 5) {
-                console.log("End Game")
-                io.to(id).emit("endGame", {winner: "Winner"});
-
-            } else if (this.games[id-1].turn.length == players.length) {
+            
+            if (this.games[id-1].turn.length == players.length) {
+                if (this.games[id-1].currentTurn == 5) {
+                    console.log("End Game")
+                    io.to(id).emit("endGame", {winner: "Winner"});
+    
+                } else {
                 console.log("New Round");
                 console.log(`lista de jugadores que ya jugaron: ${this.games[id-1].turn}`);
                 let dices = this.rollDices();
@@ -107,6 +109,7 @@ class Queue {
                 this.games[id-1].turn = []
                 this.games[id-1].currentTurn++;
                 console.log(`lista de jugadores que jugaron vacia: ${this.games[id-1].turn}`);
+                }
             }
         });
     }
