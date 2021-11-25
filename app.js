@@ -14,7 +14,7 @@ const port = process.env.port || 8000;
 httpServer.listen(port);
 
 class Queue {
-    constructor(room) {
+    constructor(room, size) {
         this.users = [];
         this.games = [];
 
@@ -22,27 +22,27 @@ class Queue {
             console.log('client connected');
 
             // listen for incoming data msg on this newly connected socket
-            socket.on("enter", (data) => {
+            socket.on("enter"+size.toString(), (data) => {
                 if (this.users.includes(data) == false) 
                 {
                     socket.join(room);
-                    io.to(room).emit("enter", data);
+                    io.to(room).emit("enter"+size.toString(), data);
                     this.users.push(data);
                     console.log(this.users);
                     this.checkMatchMaking(room);
                 } else {
-                    io.to(room).emit("enter", data);
+                    io.to(room).emit("enter"+size.toString(), data);
                 }
             });
 
-            socket.on("out", (data) => {
-                io.to(room).emit("out", data);
+            socket.on("out"+size.toString(), (data) => {
+                io.to(room).emit("out"+size.toString(), data);
                 const index = this.users.indexOf(data);
                 this.users.splice(index, 1);
                 console.log(this.users);;
             });
 
-            socket.on("foundGame", (data) => {
+            socket.on("foundGame"+size.toString(), (data) => {
                 console.log(`${data.player} found game`);
                 this.partida(socket, data.id, data.player, data.players);
             });
@@ -50,7 +50,7 @@ class Queue {
     }
     //por ahora se crean partida individuales al entrar a la cola
     checkMatchMaking(room) {
-        if (this.users.length >= 2) {
+        if (this.users.length >= size) {
             console.log("Existen jugadores suficientes para una partida");
 
             //por ahora los matcheara en orden de entrada y en partidas individuales
@@ -59,7 +59,7 @@ class Queue {
                 players.push(this.users[i]);
             }
             var lastId = this.games.length
-            io.to(room).emit("statusQueue", {lastId: lastId, players: players});
+            io.to(room).emit("statusQueue"+size.toString(), {lastId: lastId, players: players});
             
             //quitamos al jugador de la Queue
             for (let i=0; i<players.length; i++) {
@@ -189,8 +189,11 @@ class Queue {
 
 }
 
-function main_queue() {
-    const cola = new Queue("waitingRoom");
+function main_queues() {
+    const cola1 = new Queue("waitingRoom", 1);
+    const cola2 = new Queue("waitingRoom", 2);
+    const cola3 = new Queue("waitingRoom", 3);
+    const cola4 = new Queue("waitingRoom", 4);
 }
 
-main_queue();
+main_queues();
