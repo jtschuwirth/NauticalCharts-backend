@@ -17,32 +17,33 @@ class Queue {
     constructor(room, size) {
         this.users = [];
         this.games = [];
+        this.size = size;
 
         io.on("connection", socket => {
-            console.log(`client connected queue size ${size}`);
+            console.log(`client connected queue size ${this.size}`);
 
             // listen for incoming data msg on this newly connected socket
-            socket.on("enter"+size.toString(), (data) => {
+            socket.on("enter"+this.size.toString(), (data) => {
                 if (this.users.includes(data) == false) 
                 {
                     socket.join(room);
-                    io.to(room).emit("enter"+size.toString(), data);
+                    io.to(room).emit("enter"+this.size.toString(), data);
                     this.users.push(data);
                     console.log(this.users);
                     this.checkMatchMaking(room);
                 } else {
-                    io.to(room).emit("enter"+size.toString(), data);
+                    io.to(room).emit("enter"+this.size.toString(), data);
                 }
             });
 
-            socket.on("out"+size.toString(), (data) => {
-                io.to(room).emit("out"+size.toString(), data);
+            socket.on("out"+this.size.toString(), (data) => {
+                io.to(room).emit("out"+this.size.toString(), data);
                 const index = this.users.indexOf(data);
                 this.users.splice(index, 1);
                 console.log(this.users);;
             });
 
-            socket.on("foundGame"+size.toString(), (data) => {
+            socket.on("foundGame"+this.size.toString(), (data) => {
                 console.log(`${data.player} found game`);
                 this.partida(socket, data.id, data.player, data.players);
             });
@@ -50,7 +51,7 @@ class Queue {
     }
     //por ahora se crean partida individuales al entrar a la cola
     checkMatchMaking(room) {
-        if (this.users.length >= size) {
+        if (this.users.length >= this.size) {
             console.log("Existen jugadores suficientes para una partida");
 
             //por ahora los matcheara en orden de entrada y en partidas individuales
@@ -59,7 +60,7 @@ class Queue {
                 players.push(this.users[i]);
             }
             var lastId = this.games.length
-            io.to(room).emit("statusQueue"+size.toString(), {lastId: lastId, players: players});
+            io.to(room).emit("statusQueue"+this.size.toString(), {lastId: lastId, players: players});
             
             //quitamos al jugador de la Queue
             for (let i=0; i<players.length; i++) {
