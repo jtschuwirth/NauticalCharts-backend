@@ -16,6 +16,7 @@ httpServer.listen(port);
 class Queue {
     constructor(room) {
         this.users = [];
+        this.games = [];
 
         io.on("connection", socket => {
             console.log('client connected');
@@ -28,7 +29,7 @@ class Queue {
                     io.to(room).emit("enter", data);
                     this.users.push(data);
                     console.log(this.users);
-                    this.checkMatchMaking(socket, room);
+                    this.checkMatchMaking(room);
                 } else {
                     io.to(room).emit("enter", data);
                 }
@@ -48,8 +49,8 @@ class Queue {
         });
     }
     //por ahora se crean partida individuales al entrar a la cola
-    checkMatchMaking(socket, room) {
-        if (this.users.length >= 2) {
+    checkMatchMaking(room) {
+        if (this.users.length >= 1) {
             console.log("Existen jugadores suficientes para una partida");
 
             //por ahora los matcheara en orden de entrada y en partidas individuales
@@ -57,7 +58,8 @@ class Queue {
             for (let i=0; i<this.users.length; i++) {
                 players.push(this.users[i]);
             }
-            io.to(room).emit("statusQueue", {players: players});
+            var lastId = this.games.length
+            io.to(room).emit("statusQueue", {lastId: lastId, players: players});
             
             //quitamos al jugador de la Queue
             for (let i=0; i<players.length; i++) {
@@ -71,6 +73,9 @@ class Queue {
     partida(socket, id, player, players) {
         socket.join(id);
         console.log(`partida iniciada ${id}`)
+        if (this.games.length == id-1) {
+            this.games.push({id: id, turn: []})
+        }
         io.to(id).emit("partida", `Partida iniciada id: ${id}`);
         let dices = this.rollDices();
         let pos = this.pos_inicial();
@@ -80,19 +85,17 @@ class Queue {
             pos: pos,
             map: map});
 
-        let endedTurn = [];
         socket.on("endTurn", (data) => {
             console.log(`endTurn ${id}: ${data.userAddress}`);
             io.to(id).emit("endTurn", data);
-            if (endedTurn.includes(data.userAddress)==false) {
-                endedTurn.push(data.userAddress)
+            if (this.games[id-1].turn.includes(data.userAddress)==false) {
+                this.games[id-1].turn.push(data.userAddress)
             }
-            console.log(endedTurn)
-            console.log(players)
-            if (endedTurn.length == players.length) {
+            if (this.games[id-1].turn.length == players.length) {
                 console.log("New Round");
                 let dices = this.rollDices();
                 io.to(id).emit("newRound", {dices: dices});
+                this.games[id-1].turn = []
             }
         });
     }
