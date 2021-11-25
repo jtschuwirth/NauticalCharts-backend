@@ -50,7 +50,7 @@ class Queue {
     }
     //por ahora se crean partida individuales al entrar a la cola
     checkMatchMaking(room) {
-        if (this.users.length >= 1) {
+        if (this.users.length >= 2) {
             console.log("Existen jugadores suficientes para una partida");
 
             //por ahora los matcheara en orden de entrada y en partidas individuales
