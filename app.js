@@ -98,7 +98,7 @@ class Queue {
             } else if (this.games[id-1].turn.length == players.length) {
                 console.log("New Round");
                 let dices = this.rollDices();
-                io.to(id).emit("newRound", {dices: dices, currentTurn: currentTurn});
+                io.to(id).emit("newRound", {dices: dices, currentTurn: this.games[id-1].currentTurn});
                 this.games[id-1].turn = []
                 this.games[id-1].currentTurn++;
             }
