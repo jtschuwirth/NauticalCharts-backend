@@ -82,11 +82,11 @@ class Queue {
         if (this.games[id-1].players.length == players.length) {
             io.to(id).emit("partida", `Partida iniciada id: ${id}`);
             let dices = this.rollDices();
-            let pos = this.pos_inicial();
             let map = this.crearMapa();
+            let pos = this.pos_inicial(map);
             io.to(id).emit("startInfo", {
                 dices: dices, 
-                pos: pos,
+                pos: [pos.r, pos.q],
                 map: map});
         }
 
@@ -123,55 +123,68 @@ class Queue {
     }
 
     crearMapa() {
-        const size_x = 13;
-        const size_y = 13;
-        var n_isles = 10;
-        const min_dis = 3;
-        const loot_min = 2;
-        const loot_max = 10;
-        //creamos el array con valores (100 - agua) y el tamaño correcto
-        var mapa = Array.apply(null, Array(size_y)).map( () => {
-            return Array.apply(null, Array(size_x)).map( () => {return 100} )
+        var board_size = 6;
+        var b_size = board_size;
+        var n_isles = 15;
+        var min_dis = 1;
+        var loot_min = 2;
+        var loot_max = 10;
+      
+        //creamos el array con valores (200 -> no se renderiza) y el tamaño correcto
+        var aux = (board_size*2) + 1;
+        var mapa = Array.apply(null, Array(aux)).map( () => {
+            return Array.apply(null, Array(aux)).map( () => {return 200} )
         });
       
-        //las islas no pueden estar en los límites del mapa
+        // agregamos todas las posiciones donde pueden haber islas
+        // además definimos estas posiciones como agua inicialmente (100)
         var pos_islas = []
-        for (var i = 1; i < size_x - 1; i++) {
-          for (var j = 1; j < size_y - 1; j++) {
-            pos_islas.push({x: i, y: j});
+        for (var r = -board_size; r < (board_size +1); r++) {
+          var min_q = -board_size - Math.min(r, 0)
+          var max_q = board_size - Math.max(r, 0)
+          for (var q = min_q; q < max_q + 1; q++) {
+            mapa[r + b_size][q + b_size] = 100
+            pos_islas.push({r: r, q: q});
           }
         }
         this.shuffle(pos_islas)
       
         //asignamos las islas en el tablero
         while (pos_islas.length > 0 && n_isles > 0){
-            var pos = pos_islas.pop();
-            mapa[pos.y][pos.x] = this.getRandomInt(loot_min, loot_max);
-            n_isles--;
-          
+          var pos = pos_islas.pop()
+          mapa[pos.r + b_size][pos.q + b_size] = this.getRandomInt(loot_min, loot_max)
+          n_isles--;
       
-            var temp = [];
-            for (var i = 1; i < pos_islas.length; i++){
-                if ( this.dist( pos_islas[i], pos) > min_dis ){
-                temp.push(pos_islas[i])
-                }
+          var temp = [];
+          for (var i = 0; i < pos_islas.length; i++){
+            if ( this.dist( pos_islas[i], pos) > min_dis ){
+              temp.push(pos_islas[i])
             }
-            pos_islas = temp
+          }
+          pos_islas = temp;
         }
       
-      //{x: xVal, y: yVal}
-      
         return mapa;
-    }
+      }
 
-    pos_inicial() {
-        var pos = [0,0,0];
-        return pos
-    }
+      pos_inicial(mapa){
+        var b_size = 6;
+        while(true){
+          var pos = {
+            r: this.getRandomInt(1, b_size) + this.getRandomInt(1, b_size)-b_size,
+            q: this.getRandomInt(1, b_size) + this.getRandomInt(1, b_size)-b_size,
+          }
+          if (mapa[pos.r - 1+b_size][pos.q - 1+b_size] == 100){
+            return pos;
+          }
+        }
+      }
 
-    dist(coord_1, coord_2) {
-        return Math.abs(coord_1.x - coord_2.x) + Math.abs(coord_1.y - coord_2.y)
-    }
+    dist(coord_1, coord_2){
+        var s1 = - coord_1.q - coord_1.r
+        var s2 = - coord_2.q - coord_2.r
+        return (Math.abs(coord_1.q - coord_2.q) + Math.abs(coord_1.r - coord_2.r) + Math.abs(s1 - s2)) / 2
+      }
       
     shuffle(array) {
         //https://dev.to/codebubb/how-to-shuffle-an-array-in-javascript-2ikj
