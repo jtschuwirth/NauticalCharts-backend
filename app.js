@@ -94,7 +94,7 @@ class Queue {
             let pos = this.pos_inicial(map);
             io.to(id).emit("startInfo", {
                 dices: dices, 
-                pos: [pos.r, pos.q],
+                pos: [pos.r, pos.q, pos.s],
                 map: map});
         }
 
@@ -181,8 +181,10 @@ class Queue {
           var pos = {
             r: this.getRandomInt(1, b_size) + this.getRandomInt(1, b_size)-b_size,
             q: this.getRandomInt(1, b_size) + this.getRandomInt(1, b_size)-b_size,
+            s: null
           }
           if (mapa[pos.r - 1+b_size][pos.q - 1+b_size] == 100){
+              pos.s = -pos.r-pos.q
             return pos;
           }
         }
