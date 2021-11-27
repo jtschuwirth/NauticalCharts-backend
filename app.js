@@ -2,6 +2,10 @@ const { createServer } = require("http");
 
 const { Server } = require("socket.io");
 const express = require("express");
+const { exists } = require("fs");
+
+
+
 const app = express();
 
 const httpServer = createServer(app);
@@ -9,9 +13,11 @@ const httpServer = createServer(app);
 const options = { transports: ["websocket"] };
 const io = new Server(httpServer, options);
 
-
 const port = process.env.port || 8000;
 httpServer.listen(port);
+
+
+
 
 class Queue {
     constructor(room, size) {
@@ -20,7 +26,9 @@ class Queue {
         this.size = size;
 
         io.on("connection", socket => {
-            console.log(`client connected queue size ${this.size}`);
+
+
+            console.log(`client connected to queue size ${this.size}`);
 
             // listen for incoming data msg on this newly connected socket
             socket.on("enter"+this.size.toString(), (data) => {
