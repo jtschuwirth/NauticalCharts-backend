@@ -98,13 +98,13 @@ class Queue {
                 pos: [pos.r, pos.q, pos.s],
                 map: map,
             });
+            var thisPlayerMapState;
         }
 
         socket.on("loot", (data) => {
             let looted;
             let points;
             let position = data.currentPosition;
-            var thisPlayerMapState;
             if (thisPlayerMapState == undefined) {
                 thisPlayerMapState = cloneDeep(this.games[id-1].mapState);
             }
@@ -120,16 +120,16 @@ class Queue {
             } else if (currentValue == 0) {
                 socket.emit("lootResult", {result: "empty", looted: 0, points: points});
 
-            } else{
+            } else {
                 for (let i =0; i<this.games[id-1].players.length; i++) {
                     if (data.userAddress == this.games[id-1].players[i].player) {
                         this.games[id-1].players[i].points = this.games[id-1].players[i].points+looted;
                         points = this.games[id-1].players[i].points;
                     }
                 }
-                let new_map = this.newMap(thisPlayerMapState, -looted, data.currentPosition);
-                this.games[id-1].mapOptions.push(new_map);
-                thisPlayerMapState = new_map;
+                thisPlayerMapState = this.newMap(thisPlayerMapState, -looted, data.currentPosition);
+                this.games[id-1].mapOptions.push(thisPlayerMapState);
+                console.log(thisPlayerMapState[position[0]+this.boardSize][position[1]+this.boardSize]);
                 socket.emit("lootResult", {result: "",looted: looted, points: points});
             }
 
