@@ -85,14 +85,14 @@ class Queue {
         socket.join(id);
         console.log(`partida iniciada ${id}`)
         if (this.games.length == id-1) {
-            this.games.push({id: id, players: [], currentTurn: 0, turnState: [], mapState: []})
+            this.games.push({id: id, players: [], currentTurn: 0, turnState: [], mapState: [], mapOptions: []})
         }
         this.games[id-1].players.push({player: player, points: 0});
 
         if (this.games[id-1].players.length == players.length) {
             io.to(id).emit("partida", `Partida iniciada id: ${id}`);
             let map = this.crearMapa();
-            this.games[id-1].mapState = [map];
+            this.games[id-1].mapState = map;
             let pos = this.pos_inicial(map);
             io.to(id).emit("startInfo", {
                 pos: [pos.r, pos.q, pos.s],
@@ -124,7 +124,7 @@ class Queue {
                     }
                 }
                 let new_map = this.changeTileValues(this.games[id-1].mapState, -looted, data.currentPosition);
-                this.games[id-1].mapState.push(new_map);
+                this.games[id-1].mapOptions.push(new_map);
                 socket.emit("lootResult", {result: "",looted: looted, points: points});
             }
 
@@ -146,12 +146,13 @@ class Queue {
                 console.log("New Round");
                 let dices = this.rollDices();
                 this.games[id-1].currentTurn++;
-                let map = this.returnBestMap(this.games[id-1].mapState);
+                let map = this.returnBestMap(this.games[id-1].mapState, this.games[id-1].mapOptions);
+                this.games[id-1].mapState = map;
                 io.to(id).emit("newRound", {
                     dices: dices, 
                     currentTurn: this.games[id-1].currentTurn,
                     turnState: this.games[id-1].turnState,
-                    map: map,
+                    mapState: this.games[id-1].mapState,
                 });
                 this.games[id-1].turnState = []
                 }
@@ -159,13 +160,13 @@ class Queue {
         });
     }
 
-    returnBestMap(mapState) {
-        let bestMap = mapState[0]
-        for (let i = 0; i < mapState.length; i++) {
-            for (let j = 0; j < mapState[i].length; j++) {
-                for (let n = 0; n < mapState[i][j].length; n++) {
-                    if (mapState[i][j][n]<bestMap[j][n]) {
-                        bestMap[j][n] = mapState[i][j][n];
+    returnBestMap(mapState, mapOptions) {
+        let bestMap = mapState
+        for (let i = 0; i < mapOptions.length; i++) {
+            for (let j = 0; j < mapOptions[i].length; j++) {
+                for (let n = 0; n < mapOptions[i][j].length; n++) {
+                    if (mapOptions[i][j][n]<bestMap[j][n]) {
+                        bestMap[j][n] = mapOptions[i][j][n];
                     }
                 }
             }
