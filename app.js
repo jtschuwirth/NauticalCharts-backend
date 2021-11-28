@@ -3,7 +3,7 @@ const { createServer } = require("http");
 const { Server } = require("socket.io");
 const express = require("express");
 const { exists } = require("fs");
-const { threadId } = require("worker_threads");
+var cloneDeep = require('lodash.clonedeep');
 
 
 
@@ -104,11 +104,11 @@ class Queue {
             let looted;
             let points;
             let position = data.currentPosition;
-            let thisTurnMapState;
-            if (thisTurnMapState == undefined) {
-                thisTurnMapState = this.games[id-1].mapState
+            var thisPlayerMapState;
+            if (thisPlayerMapState == undefined) {
+                thisPlayerMapState = cloneDeep(this.games[id-1].mapState);
             }
-            let currentValue = thisTurnMapState[position[0]+this.boardSize][position[1]+this.boardSize];
+            let currentValue = thisPlayerMapState[position[0]+this.boardSize][position[1]+this.boardSize];
             if (data.lootValue > currentValue) {
                 looted = currentValue;
             } else {
@@ -127,9 +127,9 @@ class Queue {
                         points = this.games[id-1].players[i].points;
                     }
                 }
-                let new_map = this.newMap(thisTurnMapState, -looted, data.currentPosition);
+                let new_map = this.newMap(thisPlayerMapState, -looted, data.currentPosition);
                 this.games[id-1].mapOptions.push(new_map);
-                thisTurnMapState = new_map;
+                thisPlayerMapState = new_map;
                 socket.emit("lootResult", {result: "",looted: looted, points: points});
             }
 
