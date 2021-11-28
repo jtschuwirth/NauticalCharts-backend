@@ -3,6 +3,7 @@ const { createServer } = require("http");
 const { Server } = require("socket.io");
 const express = require("express");
 const { exists } = require("fs");
+const { threadId } = require("worker_threads");
 
 
 
@@ -24,6 +25,7 @@ class Queue {
         this.users = [];
         this.games = [];
         this.size = size;
+        this.boardSize = 6;
 
         io.on("connection", socket => {
 
@@ -83,19 +85,50 @@ class Queue {
         socket.join(id);
         console.log(`partida iniciada ${id}`)
         if (this.games.length == id-1) {
-            this.games.push({id: id, players: [], turnState: [], currentTurn: 0})
+            this.games.push({id: id, players: [], currentTurn: 0, turnState: [], mapState: []})
         }
-        this.games[id-1].players.push(player);
+        this.games[id-1].players.push({player: player, points: 0});
 
         if (this.games[id-1].players.length == players.length) {
             io.to(id).emit("partida", `Partida iniciada id: ${id}`);
             let map = this.crearMapa();
+            this.games[id-1].mapState = map;
             let pos = this.pos_inicial(map);
             io.to(id).emit("startInfo", {
                 pos: [pos.r, pos.q, pos.s],
                 map: map,
             });
         }
+
+        socket.on("loot", (data) => {
+            let looted;
+            let points;
+            let position = data.currentPosition;
+            let currentValue = this.games[id-1].mapState[position[0]+this.boardSize][position[1]+this.boardSize];
+            if (data.lootValue > currentValue) {
+                looted = currentValue;
+            } else {
+                looted = data.lootValue;
+            }
+            if (currentValue == 100) {
+                socket.emit("lootResult", {result: "sea", looted: 0, points: points});
+
+            } else if (currentValue == 0) {
+                socket.emit("lootResult", {result: "empty", looted: 0, points: points});
+
+            } else{
+                for (let i =0; i<this.games[id-1].players.length; i++) {
+                    if (data.userAddress == this.games[id-1].players[i].player) {
+                        this.games[id-1].players[i].points = this.games[id-1].players[i].points+looted;
+                        points = this.games[id-1].players[i].points;
+                    }
+                }
+                let new_map = this.changeTileValues(this.games[id-1].mapState, -looted, data.currentPosition);
+                this.games[id-1].mapState = new_map
+                socket.emit("lootResult", {result: "",looted: looted, points: points});
+            }
+
+        });
 
         socket.on("endTurn", (data) => {
             console.log(`endTurn ${id}: ${data.userAddress}`);
@@ -111,20 +144,29 @@ class Queue {
     
                 } else {
                 console.log("New Round");
-                console.log(`lista de jugadores que ya jugaron: ${this.games[id-1].turnState}`);
                 let dices = this.rollDices();
                 this.games[id-1].currentTurn++;
                 io.to(id).emit("newRound", {
                     dices: dices, 
                     currentTurn: this.games[id-1].currentTurn,
                     turnState: this.games[id-1].turnState,
+                    mapState: this.games[id-1].mapState,
                 });
                 this.games[id-1].turnState = []
-                console.log(`lista de jugadores que jugaron vacia: ${this.games[id-1].turnState}`);
                 }
             }
         });
     }
+
+    changeTileValues(map, change, currentPosition) {
+        const old_tiles = map;
+        const new_tiles = old_tiles.map((_) => _ );
+
+        new_tiles[currentPosition[0]+this.boardSize][currentPosition[1]+this.boardSize]= new_tiles[currentPosition[0]+this.boardSize][currentPosition[1]+this.boardSize]+change;    
+        return new_tiles
+    }
+
+
 
     rollDices() {
         const dice0 = Math.floor(Math.random() * (7 - 1)) + 1;
@@ -134,7 +176,7 @@ class Queue {
     }
 
     crearMapa() {
-        var board_size = 6;
+        var board_size = this.boardSize ;
         var b_size = board_size;
         var n_isles = 15;
         var min_dis = 1;
@@ -179,7 +221,7 @@ class Queue {
       }
 
     pos_inicial(mapa){
-        var b_size = 6;
+        var b_size = this.boardSize ;
         while(true){
           var pos = {
             r: this.getRandomInt(1, b_size) + this.getRandomInt(1, b_size)-b_size,
