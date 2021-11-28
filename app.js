@@ -83,19 +83,18 @@ class Queue {
         socket.join(id);
         console.log(`partida iniciada ${id}`)
         if (this.games.length == id-1) {
-            this.games.push({id: id, players: [], turnState: [], currentTurn: 1})
+            this.games.push({id: id, players: [], turnState: [], currentTurn: 0})
         }
         this.games[id-1].players.push(player);
 
         if (this.games[id-1].players.length == players.length) {
             io.to(id).emit("partida", `Partida iniciada id: ${id}`);
-            let dices = this.rollDices();
             let map = this.crearMapa();
             let pos = this.pos_inicial(map);
             io.to(id).emit("startInfo", {
-                dices: dices, 
                 pos: [pos.r, pos.q, pos.s],
-                map: map});
+                map: map,
+            });
         }
 
         socket.on("endTurn", (data) => {
