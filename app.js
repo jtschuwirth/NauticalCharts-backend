@@ -92,7 +92,7 @@ class Queue {
         if (this.games[id-1].players.length == players.length) {
             io.to(id).emit("partida", `Partida iniciada id: ${id}`);
             let map = this.crearMapa();
-            this.games[id-1].mapState = map;
+            this.games[id-1].mapState = [map];
             let pos = this.pos_inicial(map);
             io.to(id).emit("startInfo", {
                 pos: [pos.r, pos.q, pos.s],
@@ -124,7 +124,7 @@ class Queue {
                     }
                 }
                 let new_map = this.changeTileValues(this.games[id-1].mapState, -looted, data.currentPosition);
-                this.games[id-1].mapState = new_map
+                this.games[id-1].mapState.push(new_map);
                 socket.emit("lootResult", {result: "",looted: looted, points: points});
             }
 
@@ -146,17 +146,34 @@ class Queue {
                 console.log("New Round");
                 let dices = this.rollDices();
                 this.games[id-1].currentTurn++;
+                let map = this.returnBestMap(this.games[id-1].mapState);
                 io.to(id).emit("newRound", {
                     dices: dices, 
                     currentTurn: this.games[id-1].currentTurn,
                     turnState: this.games[id-1].turnState,
-                    mapState: this.games[id-1].mapState,
+                    map: map,
                 });
                 this.games[id-1].turnState = []
                 }
             }
         });
     }
+
+    returnBestMap(mapState) {
+        let bestMap = mapState[0]
+        for (let i = 0; i < mapState.length; i++) {
+            for (let j = 0; j < mapState[i].length; j++) {
+                for (let n = 0; n < mapState[i][j].length; n++) {
+                    if (mapState[i][j][n]<bestMap[j][n]) {
+                        bestMap[j][n] = mapState[i][j][n];
+                    }
+                }
+            }
+        }
+        return bestMap;
+
+    }
+
 
     changeTileValues(map, change, currentPosition) {
         const old_tiles = map;
@@ -165,8 +182,6 @@ class Queue {
         new_tiles[currentPosition[0]+this.boardSize][currentPosition[1]+this.boardSize]= new_tiles[currentPosition[0]+this.boardSize][currentPosition[1]+this.boardSize]+change;    
         return new_tiles
     }
-
-
 
     rollDices() {
         const dice0 = Math.floor(Math.random() * (7 - 1)) + 1;
