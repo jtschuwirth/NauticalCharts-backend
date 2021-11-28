@@ -1,3 +1,5 @@
+//testyeo nginx despues borrar
+
 const { createServer } = require("http");
 
 const { Server } = require("socket.io");
