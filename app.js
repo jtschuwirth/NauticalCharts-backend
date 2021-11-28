@@ -162,7 +162,7 @@ class Queue {
     }
 
     returnBestMap(mapState, mapOptions) {
-        let bestMap = mapState
+        let bestMap = mapState;
         for (let i = 0; i < mapOptions.length; i++) {
             for (let j = 0; j < mapOptions[i].length; j++) {
                 for (let n = 0; n < mapOptions[i][j].length; n++) {
