@@ -104,7 +104,10 @@ class Queue {
             let looted;
             let points;
             let position = data.currentPosition;
-            let thisTurnMapState = this.games[id-1].mapState
+            let thisTurnMapState;
+            if (thisTurnMapState == undefined) {
+                thisTurnMapState = this.games[id-1].mapState
+            }
             let currentValue = thisTurnMapState[position[0]+this.boardSize][position[1]+this.boardSize];
             if (data.lootValue > currentValue) {
                 looted = currentValue;
