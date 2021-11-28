@@ -10,7 +10,7 @@ const app = express();
 
 const httpServer = createServer(app);
 
-const options = { transports: ["websocket"] };
+const options = { transports: ["xhr-polling"] };
 const io = new Server(httpServer, options);
 
 const port = process.env.port || 8000;
