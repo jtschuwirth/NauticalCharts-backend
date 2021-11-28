@@ -1,4 +1,3 @@
-//
 const { createServer } = require("http");
 
 const { Server } = require("socket.io");
@@ -84,7 +83,7 @@ class Queue {
         socket.join(id);
         console.log(`partida iniciada ${id}`)
         if (this.games.length == id-1) {
-            this.games.push({id: id, players: [], turn: [], currentTurn: 1})
+            this.games.push({id: id, players: [], turnState: [], currentTurn: 1})
         }
         this.games[id-1].players.push(player);
 
@@ -102,23 +101,27 @@ class Queue {
         socket.on("endTurn", (data) => {
             console.log(`endTurn ${id}: ${data.userAddress}`);
             io.to(id).emit("endTurn", data);
-            if (this.games[id-1].turn.includes(data.userAddress)==false) {
-                this.games[id-1].turn.push(data.userAddress)
+            if (this.games[id-1].turnState.includes(data)==false) {
+                this.games[id-1].turnState.push(data)
             }
 
-            if (this.games[id-1].turn.length == players.length) {
+            if (this.games[id-1].turnState.length == players.length) {
                 if (this.games[id-1].currentTurn == 5) {
                     console.log("End Game")
                     io.to(id).emit("endGame", {winner: "Winner"});
     
                 } else {
                 console.log("New Round");
-                console.log(`lista de jugadores que ya jugaron: ${this.games[id-1].turn}`);
+                console.log(`lista de jugadores que ya jugaron: ${this.games[id-1].turnState}`);
                 let dices = this.rollDices();
                 this.games[id-1].currentTurn++;
-                io.to(id).emit("newRound", {dices: dices, currentTurn: this.games[id-1].currentTurn});
-                this.games[id-1].turn = []
-                console.log(`lista de jugadores que jugaron vacia: ${this.games[id-1].turn}`);
+                io.to(id).emit("newRound", {
+                    dices: dices, 
+                    currentTurn: this.games[id-1].currentTurn,
+                    turnState: this.games[id-1].turnState,
+                });
+                this.games[id-1].turnState = []
+                console.log(`lista de jugadores que jugaron vacia: ${this.games[id-1].turnState}`);
                 }
             }
         });
@@ -176,7 +179,7 @@ class Queue {
         return mapa;
       }
 
-      pos_inicial(mapa){
+    pos_inicial(mapa){
         var b_size = 6;
         while(true){
           var pos = {
