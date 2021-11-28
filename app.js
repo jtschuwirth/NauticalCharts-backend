@@ -104,7 +104,8 @@ class Queue {
             let looted;
             let points;
             let position = data.currentPosition;
-            let currentValue = this.games[id-1].mapState[position[0]+this.boardSize][position[1]+this.boardSize];
+            let thisTurnMapState = this.games[id-1].mapState
+            let currentValue = thisTurnMapState[position[0]+this.boardSize][position[1]+this.boardSize];
             if (data.lootValue > currentValue) {
                 looted = currentValue;
             } else {
@@ -123,8 +124,9 @@ class Queue {
                         points = this.games[id-1].players[i].points;
                     }
                 }
-                let new_map = this.changeTileValues(this.games[id-1].mapState, -looted, data.currentPosition);
+                let new_map = this.newMap(this.games[id-1].mapState, -looted, data.currentPosition);
                 this.games[id-1].mapOptions.push(new_map);
+                thisTurnMapState = new_map;
                 socket.emit("lootResult", {result: "",looted: looted, points: points});
             }
 
@@ -146,8 +148,7 @@ class Queue {
                 console.log("New Round");
                 let dices = this.rollDices();
                 this.games[id-1].currentTurn++;
-                let map = this.returnBestMap(this.games[id-1].mapState, this.games[id-1].mapOptions);
-                this.games[id-1].mapState = map;
+                this.games[id-1].mapState = this.returnBestMap(this.games[id-1].mapState, this.games[id-1].mapOptions);
                 io.to(id).emit("newRound", {
                     dices: dices, 
                     currentTurn: this.games[id-1].currentTurn,
@@ -176,7 +177,7 @@ class Queue {
     }
 
 
-    changeTileValues(map, change, currentPosition) {
+    newMap(map, change, currentPosition) {
         const old_tiles = map;
         const new_tiles = old_tiles.map((_) => _ );
 
