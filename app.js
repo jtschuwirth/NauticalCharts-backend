@@ -127,7 +127,7 @@ class Queue {
                         points = this.games[id-1].players[i].points;
                     }
                 }
-                let new_map = this.newMap(this.games[id-1].mapState, -looted, data.currentPosition);
+                let new_map = this.newMap(thisTurnMapState, -looted, data.currentPosition);
                 this.games[id-1].mapOptions.push(new_map);
                 thisTurnMapState = new_map;
                 socket.emit("lootResult", {result: "",looted: looted, points: points});
