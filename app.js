@@ -152,6 +152,7 @@ class Queue {
                 let dices = this.rollDices();
                 this.games[id-1].currentTurn++;
                 this.games[id-1].mapState = this.returnBestMap(this.games[id-1].mapState, this.games[id-1].mapOptions);
+                thisPlayerMapState = undefined;
                 io.to(id).emit("newRound", {
                     dices: dices, 
                     currentTurn: this.games[id-1].currentTurn,
