@@ -45,7 +45,6 @@ class App {
             console.log("Connected!");
             var sql = "CREATE TABLE IF NOT EXISTS Users (id INT AUTO_INCREMENT PRIMARY KEY, userAddress VARCHAR(255))";
             con.query(sql, function (err, result) {
-              console.log("Table created");
             });
         });
         con.end();
@@ -53,7 +52,7 @@ class App {
 
     existsUser(user) {
         con.connect(function(err) {
-            con.query("SELECT id FROM Users WHERE id = '"+ userAccnt +"'", function(err, result, field){
+            con.query("SELECT id FROM Users WHERE id = '"+ user +"'", function(err, result, field){
                 if(result.length === 0){
                 return false
                 }else{  
