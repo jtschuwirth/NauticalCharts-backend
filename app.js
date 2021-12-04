@@ -336,7 +336,7 @@ class Queue {
 
 
 function initialize() {
-    var app = App();
+    var app = new App();
     var queue1 = new Queue("waitingRoom1", 1);
     var queue2 = new Queue("waitingRoom2", 2);
     var queue3 = new Queue("waitingRoom3", 3);
