@@ -34,6 +34,9 @@ class App {
                     if (this.existsUser(data.userAddress)==false) {
                         //if not in database add to it
                         this.addUser();
+                        console.log("user Added")
+                    } else {
+                        console.log("User already Exists in DB")
                     }
                 }
             });
@@ -42,9 +45,11 @@ class App {
 
     createTables() {
         con.connect(function(err) {
+            if (err) throw err;
             console.log("Connected!");
             var sql = "CREATE TABLE IF NOT EXISTS Users (id INT AUTO_INCREMENT PRIMARY KEY, userAddress VARCHAR(255))";
             con.query(sql, function (err, result) {
+                if (err) throw err;
             });
         });
         con.end();
@@ -52,9 +57,10 @@ class App {
 
     existsUser(user) {
         con.connect(function(err) {
+            if (err) throw err;
             con.query("SELECT id FROM Users WHERE id = '"+ user +"'", function(err, result, field){
                 if(result.length === 0){
-                return false
+                    return false
                 }else{  
                     return true
                 }
@@ -65,10 +71,12 @@ class App {
 
     addUser(user) {
         con.connect(function(err) {
+            if (err) throw err;
             console.log("Connected!");
             var sql = `INSERT INTO Users (userAddress) VALUES (${user})`;
             con.query(sql, function (err, result) {
-              console.log("1 user inserted");
+                if (err) throw err;
+                console.log("1 user inserted");
             });
         });
         con.end();
