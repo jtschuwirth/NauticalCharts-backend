@@ -2,34 +2,89 @@ const { createServer } = require("http");
 
 const { Server } = require("socket.io");
 const express = require("express");
-const { exists } = require("fs");
 var cloneDeep = require('lodash.clonedeep');
+var mysql = require('mysql');
 
 
 
 const app = express();
-
 const httpServer = createServer(app);
-
 const options = { transports: ["websocket"] };
 const io = new Server(httpServer, options);
+
+var con = mysql.createConnection({
+    host     : process.env.RDS_HOSTNAME,
+    user     : process.env.RDS_USERNAME,
+    password : process.env.RDS_PASSWORD,
+    port     : process.env.RDS_PORT
+});
 
 const port = process.env.port || 8000;
 httpServer.listen(port);
 
 
+class App {
+    constructor() {
+        this.createTables();
+        io.on("connection", socket => {
+            socket.on("on", (data) => {
+                //Check if != default
+                if (data.userAddress != "default") {
+                    //Check if user in database
+                    if (this.existsUser(data.userAddress)==false) {
+                        //if not in database add to it
+                        this.addUser();
+                    }
+                }
+            });
+        });
+    }
 
+    createTables() {
+        con.connect(function(err) {
+            if (err) throw err;
+            console.log("Connected!");
+            var sql = "CREATE TABLE IF NOT EXISTS Users (id INT AUTO_INCREMENT PRIMARY KEY, userAddress VARCHAR(255))";
+            con.query(sql, function (err, result) {
+              if (err) throw err;
+              console.log("Table created");
+            });
+        });
+        con.end();
+    }
+
+    existsUser(user) {
+        con.query("SELECT id FROM Users WHERE id = '"+ userAccnt +"'", function(err, result, field){
+            if(result.length === 0){
+               return false
+            }else{  
+                return true
+            }
+        });
+    }
+
+    addUser(user) {
+        con.connect(function(err) {
+            if (err) throw err;
+            console.log("Connected!");
+            var sql = `INSERT INTO Users (userAddress) VALUES (${user})`;
+            con.query(sql, function (err, result) {
+              if (err) throw err;
+              console.log("1 user inserted");
+            });
+        });
+        con.end();
+    }
+}
 
 class Queue {
-    constructor(room, size) {
+    constructor(room, queueSize) {
         this.users = [];
         this.games = [];
-        this.size = size;
+        this.size = queueSize;
         this.boardSize = 6;
 
         io.on("connection", socket => {
-
-
             console.log(`client connected to queue size ${this.size}`);
 
             // listen for incoming data msg on this newly connected socket
@@ -70,7 +125,7 @@ class Queue {
                 players.push(this.users[i]);
             }
             var lastId = this.games.length
-            io.to(room).emit("statusQueue"+this.size.toString(), {lastId: lastId, players: players});
+            io.to(room).emit("statusQueue"+this.size.toString(), {lastId: lastId, players: players, boardSize: this.boardSize});
             
             //quitamos al jugador de la Queue
             for (let i=0; i<players.length; i++) {
@@ -279,11 +334,13 @@ class Queue {
 
 }
 
-function main_queues() {
-    const cola1 = new Queue("waitingRoom1", 1);
-    const cola2 = new Queue("waitingRoom2", 2);
-    const cola3 = new Queue("waitingRoom3", 3);
-    const cola4 = new Queue("waitingRoom4", 4);
+
+function initialize() {
+    var app = App();
+    var queue1 = new Queue("waitingRoom1", 1);
+    var queue2 = new Queue("waitingRoom2", 2);
+    var queue3 = new Queue("waitingRoom3", 3);
+    var queue4 = new Queue("waitingRoom4", 4);
 }
 
-main_queues();
+initialize();
