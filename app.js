@@ -42,11 +42,9 @@ class App {
 
     createTables() {
         con.connect(function(err) {
-            if (err) throw err;
             console.log("Connected!");
             var sql = "CREATE TABLE IF NOT EXISTS Users (id INT AUTO_INCREMENT PRIMARY KEY, userAddress VARCHAR(255))";
             con.query(sql, function (err, result) {
-              if (err) throw err;
               console.log("Table created");
             });
         });
@@ -54,22 +52,23 @@ class App {
     }
 
     existsUser(user) {
-        con.query("SELECT id FROM Users WHERE id = '"+ userAccnt +"'", function(err, result, field){
-            if(result.length === 0){
-               return false
-            }else{  
-                return true
-            }
+        con.connect(function(err) {
+            con.query("SELECT id FROM Users WHERE id = '"+ userAccnt +"'", function(err, result, field){
+                if(result.length === 0){
+                return false
+                }else{  
+                    return true
+                }
+            });
         });
+        con.end();
     }
 
     addUser(user) {
         con.connect(function(err) {
-            if (err) throw err;
             console.log("Connected!");
             var sql = `INSERT INTO Users (userAddress) VALUES (${user})`;
             con.query(sql, function (err, result) {
-              if (err) throw err;
               console.log("1 user inserted");
             });
         });
