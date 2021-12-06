@@ -23,65 +23,7 @@ const port = process.env.port || 8000;
 httpServer.listen(port);
 
 
-class App {
-    constructor() {
-        this.createTables();
-        io.on("connection", socket => {
-            socket.on("on", (data) => {
-                //Check if != default
-                if (data.userAddress != "default") {
-                    //Check if user in database
-                    if (this.existsUser(data.userAddress)==false) {
-                        //if not in database add to it
-                        this.addUser();
-                        console.log("user Added")
-                    } else {
-                        console.log("User already Exists in DB")
-                    }
-                }
-            });
-        });
-    }
 
-    createTables() {
-        con.connect(function(err) {
-            if (err) throw err;
-            console.log("Connected!");
-            var sql = "CREATE TABLE IF NOT EXISTS Users (id INT AUTO_INCREMENT PRIMARY KEY, userAddress VARCHAR(255))";
-            con.query(sql, function (err, result) {
-                if (err) throw err;
-            });
-        });
-        con.end();
-    }
-
-    existsUser(user) {
-        con.connect(function(err) {
-            if (err) throw err;
-            con.query("SELECT id FROM Users WHERE id = '"+ user +"'", function(err, result, field){
-                if(result.length === 0){
-                    return false
-                }else{  
-                    return true
-                }
-            });
-        });
-        con.end();
-    }
-
-    addUser(user) {
-        con.connect(function(err) {
-            if (err) throw err;
-            console.log("Connected!");
-            var sql = `INSERT INTO Users (userAddress) VALUES (${user})`;
-            con.query(sql, function (err, result) {
-                if (err) throw err;
-                console.log("1 user inserted");
-            });
-        });
-        con.end();
-    }
-}
 
 class Queue {
     constructor(room, queueSize) {
@@ -342,7 +284,6 @@ class Queue {
 
 
 function initialize() {
-    var app = new App();
     var queue1 = new Queue("waitingRoom1", 1);
     var queue2 = new Queue("waitingRoom2", 2);
     var queue3 = new Queue("waitingRoom3", 3);
