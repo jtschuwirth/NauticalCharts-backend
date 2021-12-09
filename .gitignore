@@ -2,4 +2,3 @@ node_modules
 .secrets.json
 truffle-config.js
 no-subir
-.env
