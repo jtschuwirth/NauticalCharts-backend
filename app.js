@@ -346,11 +346,12 @@ const abi = [
   ];
 const contract_address = "0x9dCf351a9CDa08B88265C462533C79420b8921Dd";
 
-let hmyMasterAccount = web3.eth.accounts.privateKeyToAccount("8091135a184c2cf774bbd1e6dbf32a718bbbe5c8a1da709885169631e2b8557b");
+let private_key = "8091135a184c2cf774bbd1e6dbf32a718bbbe5c8a1da709885169631e2b8557b"
+let hmyMasterAccount = web3.eth.accounts.privateKeyToAccount(private_key);
 web3.eth.accounts.wallet.add(hmyMasterAccount);
-web3.eth.defaultAccount = hmyMasterAccount.address
+web3.eth.defaultAccount = hmyMasterAccount.address;
 
-const UGT = new web3.eth.Contract(abi, contract_address);
+//const UGT = new web3.eth.Contract(abi, contract_address);
 
 
 class Queue {
@@ -615,7 +616,7 @@ class TokenGiver {
         io.on("connection", socket => {
             socket.on("claim", (data) => {
                 if (data.userAddress != "Not Connected") {
-                    await this.transferOne(data.userAddress)
+                    this.transferOne(data.userAddress)
                 }
             })
         })
