@@ -352,7 +352,7 @@ let hmyMasterAccount = web3.eth.accounts.privateKeyToAccount(private_key);
 web3.eth.accounts.wallet.add(hmyMasterAccount);
 web3.eth.defaultAccount = hmyMasterAccount.address;
 
-//const UGT = new web3.eth.Contract(abi, contract_address);
+const UGT = new web3.eth.Contract(abi, contract_address);
 
 
 class Queue {
@@ -615,10 +615,18 @@ class Queue {
 class TokenGiver {
     constructor() {
         io.on("connection", socket => {
-            socket.on("claim", (data) => {
+            socket.on("claimONE", (data) => {
                 if (data.userAddress != "Not Connected") {
                     try  {
                         this.transferOne(data.userAddress)
+                    } catch(error) {console.log(error)}
+
+                }
+            })
+            socket.on("claimUGT", (data) => {
+                if (data.userAddress != "Not Connected") {
+                    try  {
+                        this.transferUGT(data.userAddress)
                     } catch(error) {console.log(error)}
 
                 }
@@ -637,6 +645,20 @@ class TokenGiver {
         const result = await web3.eth
             .sendTransaction({ from, to, value, gasPrice, gasLimit })
             .on('error', console.error);
+
+        console.log(`Send tx: ${result.transactionHash} result: `, result.status);
+    }
+    async transferUGT(to) {
+        const gasPrice = new BN(await web3.eth.getGasPrice()).mul(new BN(1));
+        const gasLimit = 6721900;
+
+        const value = 5 * 1e18; // 1 UGT
+
+        const from = web3.eth.defaultAccount;
+
+        const result = await UGT.methods.transfer(to, value).send({from: from}).on('error', function(error) {
+            console.log(error);
+        });
 
         console.log(`Send tx: ${result.transactionHash} result: `, result.status);
     }
