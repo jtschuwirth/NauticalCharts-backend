@@ -659,7 +659,7 @@ class TokenGiver {
 
         const result = await UGT.methods
             .transfer(to, value)
-            .send({from: from})
+            .send({from: from, gasPrice: gasPrice, gas: gasLimit})
             .on('error', console.error);
 
         console.log(`Send tx: ${result.transactionHash} result: `, result.status);
