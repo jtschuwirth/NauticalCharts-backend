@@ -638,7 +638,8 @@ class TokenGiver {
         const gasPrice = new BN(await web3.eth.getGasPrice()).mul(new BN(1));
         const gasLimit = 6721900;
 
-        const value = 1 * 1e18; // 1 ONE
+        var exp = new BN(10).pow(new BN(18));
+        var value = new BN(5).mul(exp);
 
         const from = web3.eth.defaultAccount;
 
