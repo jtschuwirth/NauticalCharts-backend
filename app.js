@@ -652,13 +652,15 @@ class TokenGiver {
         const gasPrice = new BN(await web3.eth.getGasPrice()).mul(new BN(1));
         const gasLimit = 6721900;
 
-        const value = 5 * 1e18; // 1 UGT
+        var exp = new BN(10).pow(18);
+        var value = new BN(5).mul(exp);
 
         const from = web3.eth.defaultAccount;
 
-        const result = await UGT.methods.transfer(to, value).send({from: from}).on('error', function(error) {
-            console.log(error);
-        });
+        const result = await UGT.methods
+            .transfer(to, value)
+            .send({from: from})
+            .on('error', console.error);
 
         console.log(`Send tx: ${result.transactionHash} result: `, result.status);
     }
