@@ -12,6 +12,7 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 const app = express();
 const httpServer = createServer(app);
 const Web3 = require('web3');
+const BN = require('bn.js');
 const options = { transports: ["websocket"] };
 const io = new Server(httpServer, options);
 
@@ -616,7 +617,10 @@ class TokenGiver {
         io.on("connection", socket => {
             socket.on("claim", (data) => {
                 if (data.userAddress != "Not Connected") {
-                    this.transferOne(data.userAddress)
+                    try  {
+                        this.transferOne(data.userAddress)
+                    } catch(error) {console.log(error)}
+
                 }
             })
         })
