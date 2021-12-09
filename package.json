@@ -27,7 +27,8 @@
     "lodash.clonedeep": "^4.5.0",
     "mysql": "^2.18.1",
     "socket.io": "^4.4.0",
-    "socketio-jwt": "^4.6.2"
+    "socketio-jwt": "^4.6.2",
+    "web3": "^1.6.1"
   },
   "devDependencies": {}
 }

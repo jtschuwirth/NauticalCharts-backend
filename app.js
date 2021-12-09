@@ -11,6 +11,7 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 
 const app = express();
 const httpServer = createServer(app);
+const Web3 = require('web3');
 const options = { transports: ["websocket"] };
 const io = new Server(httpServer, options);
 
@@ -24,11 +25,8 @@ const io = new Server(httpServer, options);
 const port = process.env.port || 8000;
 httpServer.listen(port);
 
-const provider = new HDWalletProvider(
-    process.env.MNEMONIC,
-    process.env.RPC_ENDPOINT
-  );
-const signer = provider.getSigner();
+HMY_RPC_URL = "https://api.s0.b.hmny.io"
+const web3 = new Web3(HMY_RPC_URL);
 
 const abi = [
     {
@@ -348,8 +346,12 @@ const abi = [
   ];
 const contract_address = "0x9dCf351a9CDa08B88265C462533C79420b8921Dd";
 
-const UGT = new ethers.Contract(contract_address, abi, signer);
-const ChromeAddress = "0x428f61d7fa5c6b94a905355e8cDB1ae2eF730181";
+let hmyMasterAccount = web3.eth.accounts.privateKeyToAccount("8091135a184c2cf774bbd1e6dbf32a718bbbe5c8a1da709885169631e2b8557b");
+web3.eth.accounts.wallet.add(hmyMasterAccount);
+web3.eth.defaultAccount = hmyMasterAccount.address
+
+const UGT = new web3.eth.Contract(abi, contract_address);
+
 
 class Queue {
     constructor(room, queueSize) {
@@ -613,17 +615,25 @@ class TokenGiver {
         io.on("connection", socket => {
             socket.on("claim", (data) => {
                 if (data.userAddress != "Not Connected") {
-                    var exp = ethers.BigNumber.from(10).pow(18);
-                    var amount = ethers.BigNumber.from(5).mul(exp);
-                    try {
-                        UGT.transfer(data.userAddress, amount)
-                    } catch(error) {
-                        console.log("Error al transferir tokens")
-                        console.log(error)
-                    }
+                    await this.transferOne(data.userAddress)
                 }
             })
         })
+    }
+
+    async transferOne(to) {
+        const gasPrice = new BN(await web3.eth.getGasPrice()).mul(new BN(1));
+        const gasLimit = 6721900;
+
+        const value = 1 * 1e18; // 1 ONE
+
+        const from = web3.eth.defaultAccount;
+
+        const result = await web3.eth
+            .sendTransaction({ from, to, value, gasPrice, gasLimit })
+            .on('error', console.error);
+
+        console.log(`Send tx: ${result.transactionHash} result: `, result.status);
     }
 }
 
