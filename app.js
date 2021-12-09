@@ -14,12 +14,12 @@ const httpServer = createServer(app);
 const options = { transports: ["websocket"] };
 const io = new Server(httpServer, options);
 
-var con = mysql.createConnection({
-    host     : process.env.RDS_HOSTNAME,
-    user     : process.env.RDS_USERNAME,
-    password : process.env.RDS_PASSWORD,
-    port     : process.env.RDS_PORT
-});
+//var con = mysql.createConnection({
+//    host     : process.env.RDS_HOSTNAME,
+//    user     : process.env.RDS_USERNAME,
+//    password : process.env.RDS_PASSWORD,
+//    port     : process.env.RDS_PORT
+//});
 
 const port = process.env.port || 8000;
 httpServer.listen(port);
