@@ -374,9 +374,12 @@ class Database {
       con.query(sql, function (err, result) {
         if (err) throw err;
         console.log("Table users created");
-        socket.emit("errorlog", {errorlog: "Table users created"});
+        io.on("connection", socket => {
+          io.emit("errorlog", {errorlog: "Table users created"});
+        })
       });
     });
+    con.end();
 
   }
 
@@ -392,9 +395,12 @@ class Database {
       con.query(sql, function (err, result) {
         if (err) throw err;
         console.log(`User ${value} inserted)`);
-        socket.emit("errorlog", {errorlog: `User ${value} inserted)`});
+        io.on("connection", socket => {
+          io.emit("errorlog", {errorlog: `User ${value} inserted)`});
+        });
       });
     });
+    con.end();
 
   }
 
