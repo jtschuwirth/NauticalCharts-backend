@@ -375,9 +375,10 @@ class Database {
         if (err) throw err;
         console.log("Table users created");
         io.on("connection", socket => {
-          io.emit("errorlog", {errorlog: "Table users created"});
+          socket.emit("errorlog", {errorlog: "Table users created"});
         })
       });
+      con.end();
     });
     con.end();
 
@@ -396,9 +397,10 @@ class Database {
         if (err) throw err;
         console.log(`User ${value} inserted)`);
         io.on("connection", socket => {
-          io.emit("errorlog", {errorlog: `User ${value} inserted)`});
+          socket.emit("errorlog", {errorlog: `User ${value} inserted)`});
         });
       });
+      con.end();
     });
     con.end();
 
