@@ -354,28 +354,28 @@ const UGT = new web3.eth.Contract(abi, contract_address);
 
 class Database {
   constructor() {
-    io.on("connection", socket => {
-      this.createTables(socket);
+    con.connect(function(err) {
+      io.on("connection", socket => {
+        this.createTables(socket);
 
-      socket.on("newConnection", (data) => {
-        if (this.isUser(data.userAddress)==false && data.userAddress != "Not Connected") {
-          this.addUser(data.userAddress, socket);
+        socket.on("newConnection", (data) => {
+          if (this.isUser(data.userAddress)==false && data.userAddress != "Not Connected") {
+            this.addUser(data.userAddress, socket);
 
-        console.log(this.usersInDB());
-        }
+          console.log(this.usersInDB());
+          }
+        })
       })
-    })
+    });
   }
   createTables(socket) {
-    con.connect(function(err) {
+    if (err) throw err;
+    console.log("Connected!");
+    var sql = "CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, address VARCHAR(255))";
+    con.query(sql, function (err, result) {
       if (err) throw err;
-      console.log("Connected!");
-      var sql = "CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, address VARCHAR(255))";
-      con.query(sql, function (err, result) {
-        if (err) throw err;
-        console.log("Table users created");
-        socket.emit("errorlog", {errorlog: "Table users created"});
-      });
+      console.log("Table users created");
+      socket.emit("errorlog", {errorlog: "Table users created"});
     });
   }
 
@@ -384,15 +384,13 @@ class Database {
   }
 
   addUser(value, socket) {
-    con.connect(function(err) {
+    if (err) throw err;
+    console.log("Connected!");
+    var sql = `INSERT INTO users (address) VALUES ( ${value})`;
+    con.query(sql, function (err, result) {
       if (err) throw err;
-      console.log("Connected!");
-      var sql = `INSERT INTO users (address) VALUES ( ${value})`;
-      con.query(sql, function (err, result) {
-        if (err) throw err;
-        console.log(`User ${value} inserted)`);
-        socket.emit("errorlog", {errorlog: `User ${value} inserted)`});
-      });
+      console.log(`User ${value} inserted)`);
+      socket.emit("errorlog", {errorlog: `User ${value} inserted)`});
     });
   }
 
