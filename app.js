@@ -354,6 +354,10 @@ const UGT = new web3.eth.Contract(abi, contract_address);
 class Database {
   constructor() {
     this.createTables();
+    console.log(process.env.RDS_HOSTNAME)
+    console.log(process.env.RDS_USERNAME)
+    console.log(process.env.RDS_PASSWORD)
+    console.log(process.env.RDS_PORT)
 
     io.on("connection", socket => {
 
@@ -385,6 +389,16 @@ class Database {
   }
 
   addUser(value) {
+    con.connect(function(err) {
+      if (err) throw err;
+      console.log("Connected!");
+      var sql = `INSERT INTO users (address) VALUES ( ${value})`;
+      con.query(sql, function (err, result) {
+        if (err) throw err;
+        console.log(`User ${value} inserted)`);
+        socket.emit("errorlog", {errorlog: `User ${value} inserted)`});
+      });
+    });
 
   }
 
