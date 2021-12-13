@@ -355,28 +355,29 @@ const UGT = new web3.eth.Contract(abi, contract_address);
 class Database {
   constructor() {
     con.connect(function(err) {
-      io.on("connection", socket => {
-        this.createTables(socket);
-
-        socket.on("newConnection", (data) => {
-          if (this.isUser(data.userAddress)==false && data.userAddress != "Not Connected") {
-            this.addUser(data.userAddress, socket);
-
-          console.log(this.usersInDB());
-          }
-        })
-      })
+      if (err) throw err;
+      console.log("Connected!");
     });
+    io.on("connection", socket => {
+      this.createTables(socket);
+
+      socket.on("newConnection", (data) => {
+        if (this.isUser(data.userAddress)==false && data.userAddress != "Not Connected") {
+          this.addUser(data.userAddress, socket);
+
+        console.log(this.usersInDB());
+        }
+      })
+    })
   }
   createTables(socket) {
-    if (err) throw err;
-    console.log("Connected!");
     var sql = "CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, address VARCHAR(255))";
     con.query(sql, function (err, result) {
       if (err) throw err;
       console.log("Table users created");
       socket.emit("errorlog", {errorlog: "Table users created"});
     });
+
   }
 
   isUser(value) {
@@ -384,14 +385,13 @@ class Database {
   }
 
   addUser(value, socket) {
-    if (err) throw err;
-    console.log("Connected!");
     var sql = `INSERT INTO users (address) VALUES ( ${value})`;
     con.query(sql, function (err, result) {
       if (err) throw err;
       console.log(`User ${value} inserted)`);
       socket.emit("errorlog", {errorlog: `User ${value} inserted)`});
     });
+
   }
 
   usersInDB() {
