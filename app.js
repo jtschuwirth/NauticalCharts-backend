@@ -4,10 +4,6 @@ const { Server } = require("socket.io");
 const express = require("express");
 var cloneDeep = require('lodash.clonedeep');
 var mysql = require('mysql');
-const { ethers, Contract } = require("ethers");
-const HDWalletProvider = require("@truffle/hdwallet-provider");
-
-
 
 const app = express();
 const httpServer = createServer(app);
@@ -16,12 +12,12 @@ const BN = require('bn.js');
 const options = { transports: ["websocket"] };
 const io = new Server(httpServer, options);
 
-//var con = mysql.createConnection({
-//    host     : process.env.RDS_HOSTNAME,
-//    user     : process.env.RDS_USERNAME,
-//    password : process.env.RDS_PASSWORD,
-//    port     : process.env.RDS_PORT
-//});
+var con = mysql.createConnection({
+    host     : process.env.RDS_HOSTNAME,
+    user     : process.env.RDS_USERNAME,
+    password : process.env.RDS_PASSWORD,
+    port     : process.env.RDS_PORT
+});
 
 const port = process.env.port || 8000;
 httpServer.listen(port);
@@ -355,6 +351,47 @@ web3.eth.defaultAccount = hmyMasterAccount.address;
 const UGT = new web3.eth.Contract(abi, contract_address);
 
 
+class Database {
+  constructor() {
+    this.createTables();
+
+    io.on("connection", socket => {
+
+      socket.on("newConnection", (data) => {
+        if (this.isUser(data.userAddress)==false && data.userAddress != "Not Connected") {
+          this.addUser(data.userAddress)
+
+        console.log(this.usersInDB());
+        }
+      })
+    })
+  }
+  createTables() {
+    con.connect(function(err) {
+      if (err) throw err;
+      console.log("Connected!");
+      var sql = "CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, address VARCHAR(255))";
+      con.query(sql, function (err, result) {
+        if (err) throw err;
+        console.log("Table users created");
+      });
+    });
+
+  }
+
+  isUser(value) {
+
+  }
+
+  addUser(value) {
+
+  }
+
+  usersInDB() {
+
+  }
+}
+
 class Queue {
     constructor(room, queueSize) {
         this.users = [];
@@ -669,6 +706,7 @@ class TokenGiver {
 
 
 function initialize() {
+    var db = new Database();
     var tg = new TokenGiver();
     var queue1 = new Queue("waitingRoom1", 1);
     var queue2 = new Queue("waitingRoom2", 2);
