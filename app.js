@@ -374,14 +374,15 @@ class Database {
     var sql = "CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, address VARCHAR(255))";
     con.query(sql, function (err, result) {
       if (err) throw err;
-      console.log("Table users created");
-      socket.emit("errorlog", {errorlog: "Table users created"});
     });
 
   }
 
   isUser(value) {
-    return false
+    con.query(`SELECT EXISTS(SELECT 1 FROM users WHERE user = ${value})`, function (err, result, fields) {
+      if (err) throw err;
+      console.log(result);
+    })
   }
 
   addUser(value, socket) {
@@ -389,7 +390,6 @@ class Database {
     con.query(sql, function (err, result) {
       if (err) throw err;
       console.log(`User ${value} inserted)`);
-      socket.emit("errorlog", {errorlog: `User ${value} inserted)`});
     });
 
   }
