@@ -354,19 +354,19 @@ const UGT = new web3.eth.Contract(abi, contract_address);
 
 class Database {
   constructor() {
-    this.createTables();
     io.on("connection", socket => {
+      this.createTables(socket);
 
       socket.on("newConnection", (data) => {
         if (this.isUser(data.userAddress)==false && data.userAddress != "Not Connected") {
-          this.addUser(data.userAddress)
+          this.addUser(data.userAddress, socket)
 
         console.log(this.usersInDB());
         }
       })
     })
   }
-  createTables() {
+  createTables(socket) {
     con.connect(function(err) {
       if (err) throw err;
       console.log("Connected!");
@@ -374,21 +374,18 @@ class Database {
       con.query(sql, function (err, result) {
         if (err) throw err;
         console.log("Table users created");
-        io.on("connection", socket => {
-          socket.emit("errorlog", {errorlog: "Table users created"});
-        })
+        socket.emit("errorlog", {errorlog: "Table users created"});
       });
-      con.end();
     });
     con.end();
 
   }
 
   isUser(value) {
-
+    return false
   }
 
-  addUser(value) {
+  addUser(value, socket) {
     con.connect(function(err) {
       if (err) throw err;
       console.log("Connected!");
@@ -396,14 +393,10 @@ class Database {
       con.query(sql, function (err, result) {
         if (err) throw err;
         console.log(`User ${value} inserted)`);
-        io.on("connection", socket => {
-          socket.emit("errorlog", {errorlog: `User ${value} inserted)`});
-        });
+        socket.emit("errorlog", {errorlog: `User ${value} inserted)`});
       });
-      con.end();
     });
     con.end();
-
   }
 
   usersInDB() {
