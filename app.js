@@ -359,7 +359,7 @@ class Database {
 
       socket.on("newConnection", (data) => {
         if (this.isUser(data.userAddress)==false && data.userAddress != "Not Connected") {
-          this.addUser(data.userAddress, socket)
+          this.addUser(data.userAddress, socket);
 
         console.log(this.usersInDB());
         }
@@ -377,8 +377,6 @@ class Database {
         socket.emit("errorlog", {errorlog: "Table users created"});
       });
     });
-    con.end();
-
   }
 
   isUser(value) {
@@ -396,11 +394,10 @@ class Database {
         socket.emit("errorlog", {errorlog: `User ${value} inserted)`});
       });
     });
-    con.end();
   }
 
   usersInDB() {
-
+    return false
   }
 }
 
