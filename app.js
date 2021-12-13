@@ -16,7 +16,8 @@ var con = mysql.createConnection({
     host     : process.env.RDS_HOSTNAME,
     user     : process.env.RDS_USERNAME,
     password : process.env.RDS_PASSWORD,
-    port     : process.env.RDS_PORT
+    port     : process.env.RDS_PORT,
+    database : process.env.RDS_DB_NAME
 });
 
 const port = process.env.port || 8000;
@@ -354,11 +355,6 @@ const UGT = new web3.eth.Contract(abi, contract_address);
 class Database {
   constructor() {
     this.createTables();
-    console.log(process.env.RDS_HOSTNAME)
-    console.log(process.env.RDS_USERNAME)
-    console.log(process.env.RDS_PASSWORD)
-    console.log(process.env.RDS_PORT)
-
     io.on("connection", socket => {
 
       socket.on("newConnection", (data) => {
