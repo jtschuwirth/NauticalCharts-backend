@@ -374,6 +374,7 @@ class Database {
       con.query(sql, function (err, result) {
         if (err) throw err;
         console.log("Table users created");
+        socket.emit("errorlog", {errorlog: "Table users created"});
       });
     });
 
