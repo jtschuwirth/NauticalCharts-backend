@@ -375,33 +375,32 @@ class Database {
     con.query(sql, function (err, result) {
       if (err) throw err;
     });
-
   }
 
   isUser(value) {
-    var sql = `SELECT EXISTS(SELECT * FROM users WHERE address = ?);`;
+    var sql = `SELECT EXISTS(SELECT * FROM users WHERE address = ?) INTO v1`;
     con.query(sql, [value], function (err, result) {
       if (err) throw err;
-      if (result >= 1) {
+      if (v1 >= 1) {
         return true
       } else { 
         return false 
       }
-    })
+    });
   }
 
   addUser(value) {
-    var sql = `INSERT INTO users (address) VALUES (?);`;
+    var sql = `INSERT INTO users (address) VALUES (?)`;
     con.query(sql, [value], function (err, result) {
       if (err) throw err;
       console.log(result);
     });
-
   }
 
   usersInDB() {
     return false
   }
+
 }
 
 class Queue {
