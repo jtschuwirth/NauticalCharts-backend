@@ -359,37 +359,39 @@ class Database {
       console.log("Connected!");
     });
     io.on("connection", socket => {
-      this.createTables(socket);
+      this.createTables();
 
       socket.on("newConnection", (data) => {
         if (this.isUser(data.userAddress)==false && data.userAddress != "Not Connected") {
-          this.addUser(data.userAddress, socket);
+          this.addUser(data.userAddress);
 
         console.log(this.usersInDB());
         }
       })
     })
   }
-  createTables(socket) {
+  createTables() {
     var sql = "CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, address VARCHAR(255))";
     con.query(sql, function (err, result) {
       if (err) throw err;
+      console.log(result);
     });
 
   }
 
   isUser(value) {
-    var sql = `SELECT * FROM users WHERE address = ${value}`;
-    con.query(sql, function (err, result) {
+    var sql = `SELECT * FROM users WHERE address = ?;`;
+    con.query(sql, [value], function (err, result) {
       if (err) throw err;
       console.log(result);
     })
   }
 
-  addUser(value, socket) {
-    var sql = `INSERT INTO users (address) VALUES (${value})`;
-    con.query(sql, function (err, result) {
+  addUser(value) {
+    var sql = `INSERT INTO users (address) VALUES (?);`;
+    con.query(sql, [value], function (err, result) {
       if (err) throw err;
+      console.log(result);
       console.log(`User ${value} inserted)`);
     });
 
