@@ -380,7 +380,7 @@ class Database {
   }
 
   isUser(value) {
-    var sql = `SELECT EXIST(SELECT * FROM users WHERE address = ?);`;
+    var sql = `SELECT EXISTS(SELECT * FROM users WHERE address = ?);`;
     con.query(sql, [value], function (err, result) {
       if (err) throw err;
       console.log(result);
