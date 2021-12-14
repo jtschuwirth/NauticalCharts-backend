@@ -379,7 +379,8 @@ class Database {
   }
 
   isUser(value) {
-    con.query(`SELECT * FROM users WHERE address = ${value}`, function (err, result) {
+    var sql = `SELECT * FROM users WHERE address = ${value}`;
+    con.query(sql, function (err, result) {
       if (err) throw err;
       console.log(result);
     })
