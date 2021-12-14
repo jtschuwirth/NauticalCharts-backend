@@ -379,7 +379,7 @@ class Database {
   }
 
   isUser(value) {
-    con.query(`SELECT EXISTS(SELECT 1 FROM users.address WHERE address = ${value})`, function (err, result, fields) {
+    con.query(`SELECT EXISTS(SELECT 1 FROM users WHERE address = ${value})`, function (err, result, fields) {
       if (err) throw err;
       console.log(result);
     })
