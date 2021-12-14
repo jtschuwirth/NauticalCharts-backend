@@ -379,14 +379,14 @@ class Database {
   }
 
   isUser(value) {
-    con.query(`SELECT * FROM users WHERE address = ${value}`, function (err, result, fields) {
+    con.query(`SELECT * FROM users WHERE address = ${value}`, function (err, result) {
       if (err) throw err;
       console.log(result);
     })
   }
 
   addUser(value, socket) {
-    var sql = `INSERT INTO users (address) VALUES ( ${value})`;
+    var sql = `INSERT INTO users (address) VALUES (${value})`;
     con.query(sql, function (err, result) {
       if (err) throw err;
       console.log(`User ${value} inserted)`);
