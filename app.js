@@ -374,7 +374,6 @@ class Database {
     var sql = "CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, address VARCHAR(255))";
     con.query(sql, function (err, result) {
       if (err) throw err;
-      console.log(result);
     });
 
   }
@@ -383,7 +382,11 @@ class Database {
     var sql = `SELECT EXISTS(SELECT * FROM users WHERE address = ?);`;
     con.query(sql, [value], function (err, result) {
       if (err) throw err;
-      console.log(result);
+      if (result >= 1) {
+        return true
+      } else { 
+        return false 
+      }
     })
   }
 
@@ -392,7 +395,6 @@ class Database {
     con.query(sql, [value], function (err, result) {
       if (err) throw err;
       console.log(result);
-      console.log(`User ${value} inserted)`);
     });
 
   }
