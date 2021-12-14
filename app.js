@@ -381,9 +381,7 @@ class Database {
     var sql = `SELECT EXISTS(SELECT * FROM users WHERE address = ?)`;
     con.query(sql, [value], function (err, result) {
       if (err) throw err;
-      console.log(result)
-      console.log(Object.keys(result));
-      if (result[Object.keys(result)] >= 1) {
+      if (Object.keys(result)[0] >= 1) {
         return true
       } else { 
         return false 
