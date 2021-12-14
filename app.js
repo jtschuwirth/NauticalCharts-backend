@@ -378,10 +378,12 @@ class Database {
   }
 
   isUser(value) {
-    var sql = `SELECT EXISTS(SELECT * FROM users WHERE address = ?) INTO v1`;
+    var sql = `SELECT EXISTS(SELECT * FROM users WHERE address = ?)`;
     con.query(sql, [value], function (err, result) {
       if (err) throw err;
-      if (v1 >= 1) {
+      console.log("resultados")
+      console.log(result)
+      if (result >= 1) {
         return true
       } else { 
         return false 
