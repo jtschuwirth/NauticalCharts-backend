@@ -382,7 +382,7 @@ class Database {
     con.query(sql, [value], function (err, result) {
       if (err) throw err;
       console.log(result)
-      console.log(result[Object.keys(result)]);
+      console.log(Object.keys(result));
       if (result[Object.keys(result)] >= 1) {
         return true
       } else { 
